@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8090" doc:name="HTTP Listener Configuration"/>
+    <http:listener-config name="HTTP_Listener_Configuration1" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <http:listener-config name="HTTP_Listener_Configuration2" host="0.0.0.0" port="8091" doc:name="HTTP Listener Configuration"/>
+    <flow name="test123Flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/test" doc:name="HTTP"/>
+        <logger message="#[message.inboundProperties.'http.query.params'.name]" level="INFO" doc:name="Print Name"/>
+        <logger message="#[message.inboundProperties.'http.query.params'.marks]" level="INFO" doc:name="Print Marks"/>
+        <set-payload value="#[message.inboundProperties.'http.query.string']" doc:name="Set Payload"/>
+    </flow>
+    <flow name="test123Flow1">
+        <http:listener config-ref="HTTP_Listener_Configuration2" path="/results" doc:name="HTTP" allowedMethods="POST"/>
+        <set-variable variableName="Maths" value="" doc:name="Maths Variable"/>
+        <set-variable variableName="English" value="" doc:name="English Variable"/>
+        <choice doc:name="Choice">
+            <when expression="#[payload.opt ==&quot;+&quot;]">
+                <set-payload value="Addtition Process Selected:
+#[Integer.parseInt(payload.Maths) + Integer.parseInt(payload.English)]" doc:name="Addition"/>
+            </when>
+            <when expression="#[payload.opt == &quot;-&quot;]">
+                <set-payload value="Subtraction Process selected:
+#[Integer.parseInt(payload.Maths) - Integer.parseInt(payload.English)]" doc:name="Subtraction"/>
+            </when>
+            <when expression="#[payload.opt == &quot;*&quot;]">
+                <set-payload value="Multiplication process selected:
+#[Integer.parseInt(payload.Maths) * Integer.parseInt(payload.English)]" doc:name="Multiplication"/>
+            </when>
+            <otherwise>
+                <set-payload value="Unknown Process" doc:name="Set Payload"/>
+            </otherwise>
+        </choice>
+    </flow>
+</mule>
